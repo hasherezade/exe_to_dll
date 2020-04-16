@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     if (argc < 3) {
-        std::cout << "EXE to DLL converter v"<< VERSION << " \n- for 32 & 64 bit PEs -" << std::endl;
+        std::cout << "EXE to DLL converter v"<< VERSION << " \n- for 32 & 64 bit DLLs -" << std::endl;
         std::cout << "args: <input_exe> <output_dll>" << std::endl;
         system("pause");
         return 0;
@@ -20,6 +20,10 @@ int main(int argc, char *argv[])
     PeHandler hndl(filename);
     if (hndl.isDll()) {
         std::cout << "It is already a DLL!" << std::endl;
+        return -1;
+    }
+    if (!hndl.isConvertable()) {
+        std::cout << "[!] Converting not possible: relocation table missing or invalid!" << std::endl;
         return -1;
     }
     hndl.setExe();

@@ -26,6 +26,8 @@ public:
 
     bool isDll();
 
+    bool isConvertable();
+
     bool setExe();
 
     bool exeToDllPatch();

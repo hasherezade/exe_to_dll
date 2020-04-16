@@ -10,6 +10,14 @@ bool PeHandler::isDll()
     return false;
 }
 
+bool PeHandler::isConvertable()
+{
+    if (peconv::has_valid_relocation_table(pe_ptr, v_size)) {
+        return true;
+    }
+    return false;
+}
+
 bool PeHandler::setExe()
 {
     IMAGE_FILE_HEADER* hdr = const_cast<IMAGE_FILE_HEADER*> (peconv::get_file_hdr(pe_ptr, v_size));
