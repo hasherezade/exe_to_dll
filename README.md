@@ -7,6 +7,10 @@ Converts an EXE, so that it can be loaded like a DLL.<br/>
 
 ***Inspired by the idea of [@guywhataguy](https://github.com/guywhataguy/). Read more [here](https://blog.vastart.dev/2020/04/calling-arbitrary-functions-in-exes.html).***
 
+Download:
+-
+Fresh builds can be downloaded from [the build server](https://ci.appveyor.com/project/hasherezade/exe-to-dll) (click on the build and choose the "Artefacts" tab)
+
 Clone:
 -
 Use recursive clone to get the repo together with all the submodules:
