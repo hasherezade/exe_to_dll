@@ -25,14 +25,14 @@ int main(int argc, char *argv[])
         sscanf(argv[2], "%#llX", &ep_rva);
     }
     if (!ep_rva) {
-        std::cerr << "[!] Count't fetch EP\n";
+        std::cerr << "[!] Cannot parse the Entry Point\n";
         return -2;
     }
 
     HMODULE hTargetDll = LoadLibraryA(in_path);
     if (!hTargetDll)
     {
-        printf("[!] LoadLibraryA failed. Error: %d\n", GetLastError());
+        std::cerr << "[!] LoadLibraryA failed. Error: " << GetLastError() << std::endl;
         return -1;
     }
 
