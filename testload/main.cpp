@@ -9,9 +9,9 @@ int main(int argc, char *argv[])
         std::cout << "~ testload ~\n"
             << "Try to load DLL file.\n";
 #ifdef _WIN64
-        std::cout << "For 64-bit shellcodes.\n";
+        std::cout << "For 64-bit DLLs.\n";
 #else
-        std::cout << "For 32-bit shellcodes.\n";
+        std::cout << "For 32-bit DLLs.\n";
 #endif
         std::cout << "Args: <dll> <Entry Point RVA>" << std::endl;
         system("pause");
