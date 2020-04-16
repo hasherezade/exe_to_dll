@@ -9,7 +9,7 @@ Converts an EXE, so that it can be loaded like a DLL.<br/>
 
 Download:
 -
-Fresh builds can be downloaded from [the build server](https://ci.appveyor.com/project/hasherezade/exe-to-dll) (click on the build and choose the "Artefacts" tab)
+Fresh builds can be downloaded from [the build server](https://ci.appveyor.com/project/hasherezade/exe-to-dll) (click on the build and choose the "Artifacts" tab)
 
 Clone:
 -
