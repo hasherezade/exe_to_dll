@@ -13,7 +13,9 @@ int main(int argc, char *argv[])
 #else
         std::cout << "For 32-bit DLLs.\n";
 #endif
-        std::cout << "Args: <dll> <Entry Point RVA>" << std::endl;
+        std::cout << "Args: <dll> <Entry Point RVA>\n"
+            << "<dll>: the DLL converted by dll_to_exe\n" 
+            << "<Entry Point RVA>: the Original Entry Point of your application (before the conversion to DLL)"<< std::endl;
         system("pause");
         return 0;
     }
