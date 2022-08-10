@@ -4,7 +4,7 @@
 #include <peconv.h>
 #include "pe_handler.h"
 
-#define VERSION "1.0"
+#define VERSION "1.0-a"
 
 int main(int argc, char *argv[])
 {
@@ -20,19 +20,18 @@ int main(int argc, char *argv[])
     PeHandler hndl(filename);
     if (hndl.isDll()) {
         std::cout << "It is already a DLL!" << std::endl;
-        return -1;
+        return 0;
     }
     if (!hndl.isConvertable()) {
-        std::cout << "[!] Converting not possible: relocation table missing or invalid!" << std::endl;
+        std::cerr << "[!] This EXE is not suitable for conversion: relocation table missing or invalid!" << std::endl;
         return -1;
     }
     hndl.setExe();
-    if (hndl.exeToDllPatch()) {
-        std::cout << "[OK] Converted successfuly."<< std::endl;
-    } else {
-        std::cout << "Could not convert!" << std::endl;
+    if (!hndl.exeToDllPatch()) {
+        std::cerr << "[!] Could not convert!" << std::endl;
         return -1;
     }
+    std::cout << "[OK] Converted successfuly." << std::endl;
     if (hndl.savePe(outfile)) {
         std::cout << "[OK] Module dumped to: " << outfile << std::endl;
     }
