@@ -27,14 +27,6 @@ bool PeHandler::setExe()
     return true;
 }
 
-BYTE* PeHandler::getCavePtr(size_t neededSize)
-{
-    BYTE *cave = peconv::find_padding_cave(pe_ptr, v_size, neededSize, IMAGE_SCN_MEM_EXECUTE);
-    if (!cave) {
-        std::cout << "Cave Not found!" << std::endl;
-    }
-    return cave;
-}
 
 inline long long int get_jmp_delta(ULONGLONG currVA, int instrLen, ULONGLONG destVA)
 {
@@ -62,7 +54,7 @@ bool PeHandler::exeToDllPatch()
     }
     size_t call_offset = stub_size - 6;
 
-    BYTE* ptr = getCavePtr(stub_size);
+    BYTE* ptr = peconv::find_padding_cave(pe_ptr, v_size, stub_size, IMAGE_SCN_MEM_EXECUTE);
     if (!ptr) {
         return false;
     }
@@ -73,6 +65,19 @@ bool PeHandler::exeToDllPatch()
 
 bool PeHandler::savePe(const char *out_path)
 {
+    bool expDone = false;
+    ExportsBlock exp(this->ep, "Start");
+    const size_t pad = 2;
+    BYTE* exp_ptr = peconv::find_padding_cave(pe_ptr, v_size, exp.size + pad, IMAGE_SCN_MEM_READ);
+    if (exp_ptr) {
+        BYTE* table_va = exp_ptr + pad;
+        if (exp.appendToPE(pe_ptr, (ULONG_PTR)table_va)) {
+            expDone = true;
+        }
+    }
+    if (!expDone) {
+        std::cerr << "[!] Failed to create an Export Directory!\n";
+    }
     size_t out_size = 0;
     /*in this case we need to use the original module base, because
     * the loaded PE was not relocated */

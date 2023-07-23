@@ -4,7 +4,7 @@
 #include <peconv.h>
 #include "pe_handler.h"
 
-#define VERSION "1.0-a"
+#define VERSION "1.0-b"
 
 int main(int argc, char *argv[])
 {
