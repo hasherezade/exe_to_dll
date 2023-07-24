@@ -66,7 +66,10 @@ bool PeHandler::exeToDllPatch()
 bool PeHandler::savePe(const char *out_path)
 {
     bool expDone = false;
-    ExportsBlock exp(this->ep, "Start");
+    std::string path = out_path;
+    std::string dllname = path.substr(path.find_last_of("/\\") + 1);
+
+    ExportsBlock exp(this->ep, dllname.c_str(), "Start");
     const size_t pad = 2;
     BYTE* exp_ptr = peconv::find_padding_cave(pe_ptr, v_size, exp.size + pad, IMAGE_SCN_MEM_READ);
     if (exp_ptr) {

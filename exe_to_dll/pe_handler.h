@@ -6,10 +6,10 @@
 class ExportsBlock
 {
 public:
-    ExportsBlock(DWORD func_rva, char* name)
+    ExportsBlock(DWORD func_rva, const char* dllName, const char* funcName)
         : buf(nullptr), size(0)
     {
-        createBlock(func_rva, name);
+        createBlock(func_rva, dllName, funcName);
     }
 
     ~ExportsBlock()
@@ -32,6 +32,7 @@ public:
         exp->AddressOfFunctions += table_rva;
         exp->AddressOfNameOrdinals += table_rva;
         exp->AddressOfNames += table_rva;
+        exp->Name += table_rva;
         return true;
     }
 
@@ -53,41 +54,50 @@ public:
     size_t size;
 
 protected:
-    size_t calculateSize(DWORD funcs_count, char* func_name)
+    size_t calculateSize(DWORD funcs_count, const char* dllName, const char* funcName)
     {
-        size_t func_names_size = strlen(func_name) + 1;
+        size_t func_names_size = strlen(funcName) + 1 + strlen(dllName) + 1;
         size_t funcs_size = (sizeof(DWORD) * 2 + sizeof(WORD)) * (funcs_count + 1) + func_names_size;
         size_t export_area_size = sizeof(IMAGE_EXPORT_DIRECTORY) + funcs_size;
         return export_area_size;
     }
 
-    bool createBlock(DWORD func_rva, char* func_name)
+    bool createBlock(DWORD func_rva, const char* dllName, const char* funcName)
     {
         size_t funcs_count = 1;
-        size_t export_area_size = calculateSize(funcs_count, func_name);
+        size_t export_area_size = calculateSize(funcs_count, dllName, funcName);
         BYTE* exports_area = (BYTE*)calloc(1, export_area_size);
         IMAGE_EXPORT_DIRECTORY* exp = (IMAGE_EXPORT_DIRECTORY*)exports_area;
+        ULONG_PTR last_ptr = (ULONG_PTR)exports_area + sizeof(IMAGE_EXPORT_DIRECTORY);
         if (!exp) return false;
 
         exp->NumberOfFunctions = funcs_count;
         exp->NumberOfNames = funcs_count;
         exp->Base = 1;
 
-        DWORD* addesses = (DWORD*)((ULONG_PTR)exports_area + sizeof(IMAGE_EXPORT_DIRECTORY));
-        addesses[0] = func_rva;
-        exp->AddressOfFunctions = ((ULONG_PTR)addesses - (ULONG_PTR)exports_area);
+        DWORD* addresses = (DWORD*)last_ptr;
+        addresses[0] = func_rva;
+        exp->AddressOfFunctions = ((ULONG_PTR)addresses - (ULONG_PTR)exports_area);
 
-        DWORD* name_addr = (DWORD*)((ULONG_PTR)exports_area + sizeof(IMAGE_EXPORT_DIRECTORY) + (funcs_count + 1) * sizeof(DWORD));
+        last_ptr += (funcs_count + 1) * sizeof(DWORD);
+        DWORD* name_addr = (DWORD*)last_ptr;
         exp->AddressOfNames = ((ULONG_PTR)name_addr - (ULONG_PTR)exports_area);
 
-        WORD* ordinals = (WORD*)((ULONG_PTR)exports_area + sizeof(IMAGE_EXPORT_DIRECTORY) + (funcs_count + 1) * sizeof(DWORD) * 2);
+        last_ptr += (funcs_count + 1) * sizeof(DWORD);
+        WORD* ordinals = (WORD*)last_ptr;
         exp->AddressOfNameOrdinals = ((ULONG_PTR)ordinals - (ULONG_PTR)exports_area);
 
-        char* names = (char*)((ULONG_PTR)exports_area + sizeof(IMAGE_EXPORT_DIRECTORY) + (funcs_count + 1) * (sizeof(DWORD) * 2 + sizeof(WORD)));
-        ::memcpy(names, func_name, strlen(func_name));
+        last_ptr += (funcs_count + 1) * sizeof(WORD);
+        char* names = (char*)last_ptr;
+        ::memcpy(names, funcName, strlen(funcName));
+        last_ptr += strlen(funcName) + 1;
 
         DWORD names_rva = ((ULONG_PTR)names - (ULONG_PTR)exports_area);
         name_addr[0] = names_rva;
+
+        char* dll_name_ptr = (char*)last_ptr;
+        ::memcpy(dll_name_ptr, dllName, strlen(dllName));
+        exp->Name = ((ULONG_PTR)dll_name_ptr - (ULONG_PTR)exports_area);
 
         this->size = export_area_size;
         this->buf = exports_area;
