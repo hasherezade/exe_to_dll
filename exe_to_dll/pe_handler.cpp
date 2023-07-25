@@ -1,4 +1,5 @@
 #include "pe_handler.h"
+#include "exports_block.h"
 
 bool PeHandler::isDll()
 {
@@ -65,20 +66,11 @@ bool PeHandler::exeToDllPatch()
 
 bool PeHandler::savePe(const char *out_path)
 {
-    bool expDone = false;
     std::string path = out_path;
     std::string dllname = path.substr(path.find_last_of("/\\") + 1);
 
     ExportsBlock exp(this->ep, dllname.c_str(), "Start");
-    const size_t pad = 2;
-    BYTE* exp_ptr = peconv::find_padding_cave(pe_ptr, v_size, exp.size + pad, IMAGE_SCN_MEM_READ);
-    if (exp_ptr) {
-        BYTE* table_va = exp_ptr + pad;
-        if (exp.appendToPE(pe_ptr, (ULONG_PTR)table_va)) {
-            expDone = true;
-        }
-    }
-    if (!expDone) {
+    if (!exp.appendToPE(pe_ptr)) {
         std::cerr << "[!] Failed to create an Export Directory!\n";
     }
     size_t out_size = 0;

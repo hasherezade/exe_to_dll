@@ -14,6 +14,7 @@ set (srcs
 # general headers - they will be used for both EXE and DLL:
 set (hdrs
 	pe_handler.h
+	exports_block.h
 )
 
 set (rsrc
