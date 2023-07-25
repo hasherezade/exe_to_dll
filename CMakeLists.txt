@@ -14,5 +14,4 @@ set ( PECONV_LIB $<TARGET_FILE:libpeconv> CACHE PATH "PEConvLib library path" )
 # Add sub-directories
 #
 add_subdirectory ( exe_to_dll )
-add_subdirectory ( testload )
 add_subdirectory ( tests/test_case1 )

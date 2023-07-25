@@ -36,7 +36,7 @@ public:
         return true;
     }
 
-    bool appendToPE(BYTE* pe_module, ULONG_PTR table_va)
+    bool appendAtVA(BYTE* pe_module, size_t pe_vsize, ULONG_PTR table_va)
     {
         if (!pe_module) return false;
 
@@ -44,6 +44,10 @@ public:
         if (!dir) return false;
 
         DWORD table_rva = table_va - (ULONG_PTR)pe_module;
+        if (!peconv::validate_ptr(pe_module, pe_vsize, (BYTE*)table_va, size)) {
+            std::cerr << "[!] No space to append the table! Needed size: " << std::hex << size << "\n";
+            return false;
+        }
         relocateToRva(table_rva);
         ::memcpy((BYTE*)table_va, buf, size);
 
@@ -80,7 +84,7 @@ public:
         }
         if (exp_ptr) {
             BYTE* table_va = exp_ptr + pad;
-            if (appendToPE(pe_module, (ULONG_PTR)table_va)) {
+            if (appendAtVA(pe_module, v_size, (ULONG_PTR)table_va)) {
                 expDone = true;
             }
         }
