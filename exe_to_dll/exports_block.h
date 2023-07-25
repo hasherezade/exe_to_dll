@@ -7,7 +7,7 @@ class ExportsBlock
 {
 public:
     ExportsBlock(DWORD func_rva, const char* dllName, const char* funcName)
-        : buf(nullptr), size(0)
+        : buf(nullptr), size(0), reloc_base(0)
     {
         createBlock(func_rva, dllName, funcName);
     }
@@ -26,13 +26,23 @@ public:
         IMAGE_EXPORT_DIRECTORY* exp = (IMAGE_EXPORT_DIRECTORY*)buf;
         DWORD* name_addr = (DWORD*)((ULONG_PTR)buf + exp->AddressOfNames);
         for (size_t i = 0; i < exp->NumberOfNames; i++) {
+            name_addr[i] -= reloc_base;
             name_addr[i] += table_rva;
         }
 
+        exp->AddressOfFunctions -= reloc_base;
         exp->AddressOfFunctions += table_rva;
+
+        exp->AddressOfNameOrdinals -= reloc_base;
         exp->AddressOfNameOrdinals += table_rva;
+
+        exp->AddressOfNames -= reloc_base;
         exp->AddressOfNames += table_rva;
+
+        exp->Name -= reloc_base;
         exp->Name += table_rva;
+        
+        this->reloc_base = table_rva;
         return true;
     }
 
@@ -145,4 +155,5 @@ protected:
         return true;
     }
 
+    size_t reloc_base;
 };
