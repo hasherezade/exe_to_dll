@@ -9,20 +9,20 @@ Converts an EXE, so that it can be loaded like a DLL.<br/>
 
 ***Inspired by the idea of [@guywhataguy](https://github.com/guywhataguy/). Read more [here](https://blog.vastart.dev/2020/04/calling-arbitrary-functions-in-exes.html).***
 
-# Download:
+## Download
 
 Stable builds are available in [releases](https://github.com/hasherezade/exe_to_dll/releases).
 
 Test builds can be downloaded from [the build server](https://ci.appveyor.com/project/hasherezade/exe-to-dll) (click on the build and choose the "Artifacts" tab)
 
-# Clone:
+## Clone
 
 Use recursive clone to get the repo together with all the submodules:
 ```
 git clone --recursive https://github.com/hasherezade/exe_to_dll.git
 ```
 
-# Usage
+## Usage
 
 Run `dll_to_exe` from commandline. Arguments:
 
