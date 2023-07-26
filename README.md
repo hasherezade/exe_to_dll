@@ -24,7 +24,7 @@ git clone --recursive https://github.com/hasherezade/exe_to_dll.git
 
 ## Usage
 
-Run `dll_to_exe` from commandline. Arguments:
+Run `exe_to_dll` from commandline. Arguments:
 
 ```
 args: <input_exe> <output_dll>
