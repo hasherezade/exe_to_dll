@@ -21,8 +21,19 @@ int get_date()
     return 1337;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+    if (argc > 1) {
+        std::cout << "Trying to load: " << argv[1] << "\n";
+        HMODULE lib = LoadLibraryA(argv[1]);
+        if (lib) {
+            std::cout << "Loaded!\n";
+        }
+        else {
+            std::cerr << "Load failed!\n";
+        }
+    }
+
     if (get_date() == 1337) {
         MessageBoxA(NULL, "Test passed!", "Test Case 1", MB_OK);
         std::cout << "Test passed!\n";
