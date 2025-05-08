@@ -53,14 +53,37 @@ bool PeHandler::exeToDllPatch()
         back_stub = back_stub64;
         stub_size = sizeof(back_stub64);
     }
-    size_t call_offset = stub_size - 6;
+    BYTE* ptr = nullptr;
+    // find matching artifact:
+    size_t sec_count = peconv::get_sections_count(pe_ptr, v_size);
+    for (size_t i = 0; i < sec_count; i++) {
+        PIMAGE_SECTION_HEADER section_hdr = peconv::get_section_hdr(pe_ptr, v_size, i);
+        if (!section_hdr) continue;
+        if (!(section_hdr->Characteristics & IMAGE_SCN_MEM_EXECUTE)) continue;
+        // we will be searching in the loaded, virtual image:
+        DWORD sec_start = section_hdr->VirtualAddress;
+        if (sec_start == 0) continue;
 
-    BYTE* ptr = peconv::find_padding_cave(pe_ptr, v_size, stub_size, IMAGE_SCN_MEM_EXECUTE);
-    if (!ptr) {
-        return false;
+        DWORD sec_end = sec_start + section_hdr->SizeOfRawData;
+        for (size_t i = sec_start; (i + stub_size) < sec_end; i++) {
+            BYTE* _ptr = pe_ptr + sec_start + i;
+            if (::memcmp(_ptr, back_stub, stub_size) == 0) {
+                ptr = _ptr;
+                std::cout << "Found stub pattern in the existing section!\n";
+                break;
+            }
+        }
     }
-    memmove(ptr, back_stub, stub_size);
-    DWORD new_ep = DWORD(ptr - this->pe_ptr);
+    if (!ptr) {
+        BYTE* _ptr = peconv::find_padding_cave(pe_ptr, v_size, stub_size, IMAGE_SCN_MEM_EXECUTE);
+        if (!_ptr) {
+            return false;
+        }
+        ::memmove(_ptr, back_stub, stub_size);
+        ptr = _ptr;
+        std::cout << "Saved stub in the section cave!\n";
+    }
+    const DWORD new_ep = DWORD(ptr - this->pe_ptr);
     return peconv::update_entry_point_rva(this->pe_ptr, new_ep);
 }
 

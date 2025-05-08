@@ -76,22 +76,22 @@ public:
         bool expDone = false;
         const size_t pad = 2;
         const size_t needed_size = this->size + pad;
-        BYTE* exp_ptr = peconv::find_padding_cave(pe_module, v_size, needed_size, IMAGE_SCN_MEM_READ);
-        if (!exp_ptr) {
-            PIMAGE_SECTION_HEADER hdr = peconv::get_last_section(pe_module, v_size, true);
-            if (hdr && hdr->PointerToRawData) {
-                size_t bigger_size = (hdr->SizeOfRawData > hdr->Misc.VirtualSize) ? hdr->SizeOfRawData : hdr->Misc.VirtualSize;
-                ULONG_PTR raw_end = hdr->PointerToRawData + bigger_size;
-                if (v_size > raw_end) {
-                    DWORD diff = v_size - raw_end;
-                    if (diff >= needed_size) {
-                        exp_ptr = pe_module + hdr->VirtualAddress + bigger_size;
-                        hdr->SizeOfRawData = hdr->Misc.VirtualSize = bigger_size + needed_size;
-                        hdr->Characteristics |= IMAGE_SCN_MEM_READ; //ensure that the section is readable
-                    }
+        BYTE* exp_ptr = nullptr;
+
+        PIMAGE_SECTION_HEADER hdr = peconv::get_last_section(pe_module, v_size, true);
+        if (hdr && hdr->PointerToRawData) {
+            size_t bigger_size = (hdr->SizeOfRawData > hdr->Misc.VirtualSize) ? hdr->SizeOfRawData : hdr->Misc.VirtualSize;
+            ULONG_PTR raw_end = hdr->PointerToRawData + bigger_size;
+            if (v_size > raw_end) {
+                DWORD diff = v_size - raw_end;
+                if (diff >= needed_size) {
+                    exp_ptr = pe_module + hdr->VirtualAddress + bigger_size;
+                    hdr->SizeOfRawData = hdr->Misc.VirtualSize = bigger_size + needed_size;
+                    hdr->Characteristics |= IMAGE_SCN_MEM_READ; //ensure that the section is readable
                 }
             }
         }
+
         if (exp_ptr) {
             BYTE* table_va = exp_ptr + pad;
             if (appendAtVA(pe_module, v_size, (ULONG_PTR)table_va)) {
