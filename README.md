@@ -18,7 +18,8 @@ Test builds can be downloaded from [the build server](https://ci.appveyor.com/pr
 ## Clone
 
 Use recursive clone to get the repo together with all the submodules:
-```
+
+```cmd
 git clone --recursive https://github.com/hasherezade/exe_to_dll.git
 ```
 
@@ -32,7 +33,7 @@ args: <input_exe> <output_dll>
 
 Example:
 
-```
+```cmd
 exe_to_dll.exe test_case1.exe test_case1.dll
 ```
 
@@ -42,6 +43,6 @@ After the successful conversion you should obtain a DLL exporting a `Start` func
 
 You can test it by running:
 
-```
+```cmd
 rundll32.exe test_case1.dll,Start
 ```
