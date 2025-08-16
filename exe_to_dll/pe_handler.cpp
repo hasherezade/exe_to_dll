@@ -87,13 +87,20 @@ bool PeHandler::exeToDllPatch()
     return peconv::update_entry_point_rva(this->pe_ptr, new_ep);
 }
 
+bool PeHandler::appendExportsTable(const std::string& dllname)
+{
+    ExportsBlock exp(this->ep, dllname.c_str(), "Start");
+    if (!exp.appendToPE(pe_ptr)) {
+        return false;
+    }
+    return true;
+}
+
 bool PeHandler::savePe(const char *out_path)
 {
     std::string path = out_path;
     std::string dllname = path.substr(path.find_last_of("/\\") + 1);
-
-    ExportsBlock exp(this->ep, dllname.c_str(), "Start");
-    if (!exp.appendToPE(pe_ptr)) {
+    if (!appendExportsTable(dllname)) {
         std::cerr << "[!] Failed to create an Export Directory!\n";
     }
     size_t out_size = 0;

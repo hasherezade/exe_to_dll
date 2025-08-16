@@ -31,6 +31,8 @@ public:
     bool setExe();
 
     bool exeToDllPatch();
+    bool appendExportsTable(const std::string& dllname);
+
     bool savePe(const char *path);
 protected:
 
