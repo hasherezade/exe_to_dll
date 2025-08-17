@@ -87,9 +87,31 @@ bool PeHandler::exeToDllPatch()
     return peconv::update_entry_point_rva(this->pe_ptr, new_ep);
 }
 
-bool PeHandler::appendExportsTable(const std::string& dllname)
+bool PeHandler::appendExportsTable(std::string dllname)
 {
-    ExportsBlock exp(this->ep, dllname.c_str(), "Start");
+    std::vector<ExportedFunc> funcs;
+    WORD last_ord = 1;
+    DWORD ord_base = 1;
+    IMAGE_EXPORT_DIRECTORY *dir = peconv::get_export_directory((HMODULE)pe_ptr);
+    if (dir) {
+        dllname = (char*)((ULONG_PTR)pe_ptr + (ULONG_PTR)dir->Name);
+        ord_base = dir->Base;
+
+        DWORD* exp_rva = (DWORD*)((ULONG_PTR)pe_ptr + (ULONG_PTR)dir->AddressOfFunctions);
+        DWORD* exp_name_rva = (DWORD*)((ULONG_PTR)pe_ptr + (ULONG_PTR)dir->AddressOfNames);
+        DWORD* exp_name_ords = (DWORD*)((ULONG_PTR)pe_ptr + (ULONG_PTR)dir->AddressOfNameOrdinals);
+        for (size_t i = 0; i < dir->NumberOfFunctions; ++i) {
+            std::string exp_name = "";
+            if (exp_name_rva[i]) {
+                exp_name = (char*)((ULONG_PTR)pe_ptr + (ULONG_PTR)exp_name_rva[i]);
+            }
+            funcs.push_back(ExportedFunc(exp_rva[i], last_ord++, exp_name));
+        }
+    }
+    funcs.push_back(ExportedFunc(ep, last_ord, "Start"));
+
+    ExportsBlock exp;
+    exp.createBlock(dllname, funcs, ord_base);
     if (!exp.appendToPE(pe_ptr)) {
         return false;
     }
