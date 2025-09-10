@@ -113,7 +113,7 @@ bool PeHandler::appendExportsTable(std::string dllname)
 
     ExportsBlock exp;
     exp.createBlock(dllname, funcs, ord_base);
-    if (!exp.appendToPE(pe_ptr)) {
+    if (!exp.appendToPE(this->pe_ptr, this->v_size)) {
         return false;
     }
     return true;
@@ -132,7 +132,7 @@ bool PeHandler::savePe(const char *out_path)
     ULONGLONG module_base = peconv::get_image_base(pe_ptr);
 
     BYTE* unmapped_module = peconv::pe_virtual_to_raw(pe_ptr,
-        v_size,
+        this->v_size,
         module_base, //the original module base
         out_size // OUT: size of the unmapped (raw) PE
     );
@@ -141,7 +141,7 @@ bool PeHandler::savePe(const char *out_path)
         if (peconv::dump_to_file(out_path, unmapped_module, out_size)) {
             is_ok = true;
         }
-        peconv::free_pe_buffer(unmapped_module, v_size);
+        peconv::free_pe_buffer(unmapped_module, this->v_size);
     }
     return is_ok;
 }

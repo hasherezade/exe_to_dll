@@ -52,7 +52,7 @@ public:
 
         exp->Name -= reloc_base;
         exp->Name += table_rva;
-        
+
         this->reloc_base = table_rva;
         return true;
     }
@@ -77,12 +77,9 @@ public:
         return true;
     }
 
-    bool appendToPE(BYTE* pe_module)
+    bool appendToPE(BYTE* pe_module, size_t v_size)
     {
-        if (!pe_module) return false;
-
-        size_t v_size = peconv::get_image_size(pe_module);
-        if (!v_size) return false;
+        if (!pe_module || !v_size) return false;
 
         bool expDone = false;
         const size_t pad = 2;
@@ -106,6 +103,13 @@ public:
         if (exp_ptr) {
             BYTE* table_va = exp_ptr + pad;
             if (appendAtVA(pe_module, v_size, (ULONG_PTR)table_va)) {
+                const size_t img_size = peconv::get_image_size(pe_module);
+                const size_t last_offs = ((ULONG_PTR)table_va - (ULONG_PTR)pe_module) + this->size;
+                if (last_offs > img_size) {
+                    // extend the image size to fit the export table
+                    peconv::update_image_size(pe_module, last_offs);
+                    std::cout << "New Image Size: " << std::hex << last_offs << "\n";
+                }
                 expDone = true;
             }
         }
