@@ -62,11 +62,12 @@ bool PeHandler::exeToDllPatch()
         if (!(section_hdr->Characteristics & IMAGE_SCN_MEM_EXECUTE)) continue;
         // we will be searching in the loaded, virtual image:
         DWORD sec_start = section_hdr->VirtualAddress;
-        if (sec_start == 0) continue;
-
+        if (sec_start == 0 || section_hdr->SizeOfRawData == 0) continue;
+        
         DWORD sec_end = sec_start + section_hdr->SizeOfRawData;
         for (size_t i = sec_start; (i + stub_size) < sec_end; i++) {
             BYTE* _ptr = pe_ptr + sec_start + i;
+            if (!peconv::validate_ptr(pe_ptr, v_size, _ptr, stub_size)) break;
             if (::memcmp(_ptr, back_stub, stub_size) == 0) {
                 ptr = _ptr;
                 std::cout << "Found stub pattern in the existing section!\n";
