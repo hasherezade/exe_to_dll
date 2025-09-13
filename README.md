@@ -3,6 +3,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/2exf5ulw51klq8wt?svg=true)](https://ci.appveyor.com/project/hasherezade/exe-to-dll)
 [![GitHub release](https://img.shields.io/github/release/hasherezade/exe_to_dll.svg)](https://github.com/hasherezade/exe_to_dll/releases)
 [![Github All Releases](https://img.shields.io/github/downloads/hasherezade/exe_to_dll/total.svg)](https://github.com/hasherezade/exe_to_dll/releases)
+[![Github Latest Release](https://img.shields.io/github/downloads/hasherezade/exe_to_dll/latest/total.svg)](https://github.com/hasherezade/exe_to_dll/releases)
 
 Converts an EXE, so that it can be loaded like a DLL.<br/>
 <b>Supports both 32 and 64 bit DLLs</b>
